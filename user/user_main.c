@@ -52,14 +52,7 @@ void mqttConnectedCb(uint32_t *args)
 {
 	MQTT_Client* client = (MQTT_Client*)args;
 	INFO("MQTT: Connected\r\n");
-	MQTT_Subscribe(client, "/mqtt/topic/0", 0);
-	MQTT_Subscribe(client, "/mqtt/topic/1", 1);
-	MQTT_Subscribe(client, "/mqtt/topic/2", 2);
-
-	MQTT_Publish(client, "/mqtt/topic/0", "hello0", 6, 0, 0);
-	MQTT_Publish(client, "/mqtt/topic/1", "hello1", 6, 1, 0);
-	MQTT_Publish(client, "/mqtt/topic/2", "hello2", 6, 2, 0);
-
+	MQTT_Subscribe(client, "/esp8266/led", 0);
 }
 
 void mqttDisconnectedCb(uint32_t *args)
@@ -88,6 +81,19 @@ void mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len, const cha
 	dataBuf[data_len] = 0;
 
 	INFO("Receive topic: %s, data: %s \r\n", topicBuf, dataBuf);
+	
+	if (!strcoll(topicBuf, "/esp8266/led")) {
+		if (!strcoll(dataBuf, "1")) {
+			INFO("Switch led on\r\n");
+			GPIO_OUTPUT_SET(LED_GPIO, 1);
+		} else if (!strcoll(dataBuf, "0")) {
+			INFO("Switch led off\r\n");
+			GPIO_OUTPUT_SET(LED_GPIO, 0);
+		} else {
+			INFO("Invalid command\r\n");
+		}
+	}
+	
 	os_free(topicBuf);
 	os_free(dataBuf);
 }
@@ -99,13 +105,11 @@ void user_init(void)
 	os_delay_us(1000000);
 
 	CFG_Load();
+	PIN_FUNC_SELECT(LED_GPIO_MUX, LED_GPIO_FUNC);
+	GPIO_OUTPUT_SET(LED_GPIO, 0);
 
 	MQTT_InitConnection(&mqttClient, sysCfg.mqtt_host, sysCfg.mqtt_port, sysCfg.security);
-	//MQTT_InitConnection(&mqttClient, "192.168.11.122", 1880, 0);
-
 	MQTT_InitClient(&mqttClient, sysCfg.device_id, sysCfg.mqtt_user, sysCfg.mqtt_pass, sysCfg.mqtt_keepalive, 1);
-	//MQTT_InitClient(&mqttClient, "client_id", "user", "pass", 120, 1);
-
 	MQTT_InitLWT(&mqttClient, "/lwt", "offline", 0, 0);
 	MQTT_OnConnected(&mqttClient, mqttConnectedCb);
 	MQTT_OnDisconnected(&mqttClient, mqttDisconnectedCb);
