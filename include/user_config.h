@@ -28,3 +28,7 @@
 #define PROTOCOL_NAMEv31	/*MQTT version 3.1 compatible with Mosquitto v0.15*/
 //PROTOCOL_NAMEv311			/*MQTT version 3.11 compatible with https://eclipse.org/paho/clients/testing/*/
 #endif
+
+#define LED_GPIO 2
+#define LED_GPIO_MUX PERIPHS_IO_MUX_GPIO2_U
+#define LED_GPIO_FUNC FUNC_GPIO2
