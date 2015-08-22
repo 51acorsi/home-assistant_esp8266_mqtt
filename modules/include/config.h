@@ -54,9 +54,9 @@ typedef struct {
     uint8 pad[3];
 } SAVE_FLAG;
 
-void ICACHE_FLASH_ATTR CFG_Save();
-void ICACHE_FLASH_ATTR CFG_Load();
+void ICACHE_FLASH_ATTR config_save();
+void ICACHE_FLASH_ATTR config_load();
 
-extern SYSCFG sysCfg;
+extern SYSCFG config;
 
 #endif /* USER_CONFIG_H_ */
