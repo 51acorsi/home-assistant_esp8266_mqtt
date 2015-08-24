@@ -18,7 +18,7 @@ SDK_BASE	?= c:/Espressif/ESP8266_SDK
 # esptool path and port
 SDK_TOOLS	?= c:/Espressif/utils
 ESPTOOL		?= $(SDK_TOOLS)/esptool.exe
-ESPPORT		?= COM4
+ESPPORT		?= COM3
 ESPBAUD		?= 921600
 
 # name for the target project
@@ -32,7 +32,7 @@ EXTRA_INCDIR    = include $(SDK_BASE)/../include
 LIBS		= c gcc hal phy pp net80211 lwip wpa main upgrade ssl json
 
 # compiler flags using during compilation of source files
-CFLAGS		= -Os -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
+CFLAGS		= -Os -g -O2 -Wpointer-arith -Wundef -Werror -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
 
 # linker flags used to generate the main object file
 LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
