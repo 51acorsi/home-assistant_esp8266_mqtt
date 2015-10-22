@@ -91,7 +91,9 @@ config_load()
 		config.sta_type = STA_TYPE;
 
 		os_sprintf(config.device_id, MQTT_CLIENT_ID, system_get_chip_id());
-		os_sprintf(config.mqtt_topic, MQTT_TOPIC, system_get_chip_id());
+		os_sprintf(config.mqtt_topic_s01, MQTT_TOPIC_S01, system_get_chip_id());
+		os_sprintf(config.mqtt_topic_s02, MQTT_TOPIC_S02, system_get_chip_id());
+		os_sprintf(config.mqtt_topic_s03, MQTT_TOPIC_S03, system_get_chip_id());
 		os_sprintf(config.mqtt_host, "%s", MQTT_HOST);
 		config.mqtt_port = MQTT_PORT;
 		os_sprintf(config.mqtt_user, "%s", MQTT_USER);
@@ -105,5 +107,4 @@ config_load()
 
 		config_save();
 	}
-
 }

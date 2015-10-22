@@ -51,8 +51,13 @@ json_get(struct jsontree_context *js_ctx)
 LOCAL int ICACHE_FLASH_ATTR
 json_set(struct jsontree_context *js_ctx, struct jsonparse_state *parser)
 {
-    int type;
+	int type;
+	INFO("Json set/n");
+	INFO(parser);
+	INFO("/n");
     while ((type = jsonparse_next(parser)) != 0) {
+    	INFO (parser);
+    	INFO("/n");
         if (type == JSON_TYPE_PAIR_NAME) {
             char buffer[64];
             os_bzero(buffer, 64);
@@ -62,10 +67,10 @@ json_set(struct jsontree_context *js_ctx, struct jsonparse_state *parser)
                 jsonparse_copy_value(parser, buffer, sizeof(buffer));
                 if (!strcoll(buffer, "on")) {
                 	INFO("JSON: Switch on\n", buffer);
-        			GPIO_OUTPUT_SET(SWITCH_GPIO, 1);
+        			GPIO_OUTPUT_SET(SWITCH03_GPIO, 1);
                 } else if (!strcoll(buffer, "off")) {
                 	INFO("JSON: Switch off\n", buffer);
-        			GPIO_OUTPUT_SET(SWITCH_GPIO, 0);
+        			GPIO_OUTPUT_SET(SWITCH03_GPIO, 0);
                 }
             }
         }
@@ -95,7 +100,10 @@ mqtt_connected_cb(uint32_t *args)
 {
 	MQTT_Client* client = (MQTT_Client*)args;
 	INFO("MQTT: Connected\r\n");
-	MQTT_Subscribe(client, config.mqtt_topic, 0);
+	INFO("MQTT: Subscribe Topic: %s\n", config.mqtt_topic_s01);
+	MQTT_Subscribe(client, config.mqtt_topic_s01, 0);
+	MQTT_Subscribe(client, config.mqtt_topic_s02, 0);
+	MQTT_Subscribe(client, config.mqtt_topic_s03, 0);
 }
 
 void ICACHE_FLASH_ATTR
@@ -126,13 +134,47 @@ mqtt_data_cb(uint32_t *args, const char* topic, uint32_t topic_len, const char *
 	os_memcpy(data_buf, data, data_len);
 	data_buf[data_len] = 0;
 
-	INFO("MQTT: Received data on topic: %s\r\n", topic_buf);
+	INFO("MQTT: Received data on topic: \n%s\r\n", topic_buf);
 
-	if (!strcoll(topic_buf, config.mqtt_topic)) {
-		struct jsontree_context js;
-		jsontree_setup(&js, (struct jsontree_value *)&device_tree, json_putchar);
-		json_parse(&js, data_buf);
+	char strData[data_len + 1];
+		os_memcpy(strData, data, data_len);
+		strData[data_len] = '\0';
+
+	int statusCommand = -1;
+
+	INFO("MQTT: Data: %s\n", strData);
+
+	if (!strcoll(strData, "on")) {
+		statusCommand = 1;
 	}
+	else if (!strcoll(strData, "off")) {
+		statusCommand = 0;
+	}
+
+	if (statusCommand == -1)
+		return;
+
+	if (!strcoll(topic_buf, config.mqtt_topic_s01))
+	{
+		INFO("Switch %d %s", SWITCH01_GPIO, strData);
+		GPIO_OUTPUT_SET(SWITCH01_GPIO, statusCommand);
+	}
+	else if (!strcoll(topic_buf, config.mqtt_topic_s02))
+	{
+		INFO("Switch %d %s", SWITCH02_GPIO, strData);
+		GPIO_OUTPUT_SET(SWITCH02_GPIO, statusCommand);
+	}
+	else if (!strcoll(topic_buf, config.mqtt_topic_s03))
+	{
+		INFO("Switch %d %s", SWITCH03_GPIO, strData);
+		GPIO_OUTPUT_SET(SWITCH03_GPIO, statusCommand);
+	}
+
+		//!strcoll(topic_buf, config.mqtt_topic_s02) ||
+		//!strcoll(topic_buf, config.mqtt_topic_s03)) {
+		//struct jsontree_context js;
+		//jsontree_setup(&js, (struct jsontree_value *)&device_tree, json_putchar);
+		//json_parse(&js, data_buf);
 
 	os_free(topic_buf);
 	os_free(data_buf);
@@ -148,10 +190,10 @@ button_press() {
 	// Button pressed, flip switch
 	if (GPIO_REG_READ(BUTTON_GPIO) & BIT2) {
 		INFO("BUTTON: Switch off\r\n");
-		GPIO_OUTPUT_SET(SWITCH_GPIO, 0);
+		GPIO_OUTPUT_SET(SWITCH03_GPIO, 0);
 	} else  {
 		INFO("BUTTON: Switch on\r\n");
-		GPIO_OUTPUT_SET(SWITCH_GPIO, 1);
+		GPIO_OUTPUT_SET(SWITCH03_GPIO, 1);
 	}
 
 	// Send new status to the MQTT broker
@@ -159,7 +201,7 @@ button_press() {
 	json_buf = (char *)os_zalloc(jsonSize);
 	json_ws_send((struct jsontree_value *)&device_tree, "device", json_buf);
 	INFO("BUTTON: Sending current switch status\r\n");
-	MQTT_Publish(&mqttClient, config.mqtt_topic, json_buf, strlen(json_buf), 0, 0);
+	MQTT_Publish(&mqttClient, config.mqtt_topic_s01, json_buf, strlen(json_buf), 0, 0);
 	os_free(json_buf);
 	json_buf = NULL;
 
@@ -176,11 +218,21 @@ button_press() {
 
 void ICACHE_FLASH_ATTR
 gpio_init() {
-	// Configure switch (relay)
-	PIN_FUNC_SELECT(SWITCH_GPIO_MUX, SWITCH_GPIO_FUNC);
-	GPIO_OUTPUT_SET(SWITCH_GPIO, 0);
+	// Configure switch (relays)
+	INFO("Configure Switch 1 %d\n", SWITCH01_GPIO );
+	PIN_FUNC_SELECT(SWITCH01_GPIO_MUX, SWITCH01_GPIO_FUNC);
+	GPIO_OUTPUT_SET(SWITCH01_GPIO, 0);
+
+	INFO("Configure Switch 2 %d\n", SWITCH02_GPIO );
+	PIN_FUNC_SELECT(SWITCH02_GPIO_MUX, SWITCH02_GPIO_FUNC);
+	GPIO_OUTPUT_SET(SWITCH02_GPIO, 0);
+
+	INFO("Configure Switch 3 %d\n", SWITCH03_GPIO );
+	PIN_FUNC_SELECT(SWITCH03_GPIO_MUX, SWITCH03_GPIO_FUNC);
+	GPIO_OUTPUT_SET(SWITCH03_GPIO, 0);
 
 	// Configure push button
+	INFO("Confgiure push button %d\n", BUTTON_GPIO );
 	ETS_GPIO_INTR_DISABLE(); // Disable gpio interrupts
 	ETS_GPIO_INTR_ATTACH(button_press, BUTTON_GPIO);  // GPIO0 interrupt handler
 	PIN_FUNC_SELECT(BUTTON_GPIO_MUX, BUTTON_GPIO_FUNC); // Set function
@@ -209,11 +261,16 @@ user_init(void)
 	system_set_os_print(1);
 	os_delay_us(1000000);
 
+	INFO("Load Config\n");
 	config_load();
+	INFO("GPIO Init\n");
 	gpio_init();
+	INFO("MQTT Init");
 	mqtt_init();
 
+	INFO("Connect wifi %s\n", config.sta_ssid);
 	WIFI_Connect(config.sta_ssid, config.sta_pwd, wifi_connect_cb);
+	//WIFI_Connect("Wirelessabata", "TaLi100305", wifi_connect_cb);
 
 	INFO("\r\nSystem started ...\r\n");
 }

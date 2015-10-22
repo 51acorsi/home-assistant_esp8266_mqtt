@@ -602,9 +602,11 @@ MQTT_Connect(MQTT_Client *mqttClient)
 	if(UTILS_StrToIP(mqttClient->host, &mqttClient->pCon->proto.tcp->remote_ip)) {
 		INFO("TCP: Connect to ip  %s:%d\r\n", mqttClient->host, mqttClient->port);
 		if(mqttClient->security){
+			INFO("Secure Connect/n");
 			espconn_secure_connect(mqttClient->pCon);
 		}
 		else {
+			INFO("No Secure Connect/n");
 			espconn_connect(mqttClient->pCon);
 		}
 	}
@@ -618,6 +620,7 @@ MQTT_Connect(MQTT_Client *mqttClient)
 void ICACHE_FLASH_ATTR
 MQTT_Disconnect(MQTT_Client *mqttClient)
 {
+	INFO("MQTT Disconnect\n");
 	if(mqttClient->pCon){
 		INFO("Free memory\r\n");
 		if(mqttClient->pCon->proto.tcp)

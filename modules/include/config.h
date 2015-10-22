@@ -35,7 +35,9 @@
 typedef struct{
 	uint32_t cfg_holder;
 	uint8_t device_id[16];
-	uint8_t mqtt_topic[20];
+	uint8_t mqtt_topic_s01[20];
+	uint8_t mqtt_topic_s02[20];
+	uint8_t mqtt_topic_s03[20];
 
 	uint8_t sta_ssid[64];
 	uint8_t sta_pwd[64];

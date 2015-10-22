@@ -36,7 +36,7 @@ uart_config(uint8 uart_no)
 {
   if (uart_no == UART1)
   {
-    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_U1TXD_BK);
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, FUNC_U1TXD_BK);
   }
   else
   {

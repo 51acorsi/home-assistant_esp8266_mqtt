@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>esp_mqtt_switch</name>
+	<name>home-assistant_esp8266_mqtt</name>
 	<comment></comment>
 	<projects>
 	</projects>
