@@ -149,31 +149,31 @@ notify_switch_status(int gpio, int status) {
 	//Set topic
 	switch (gpio) {
 		case SWITCH01_GPIO:
-			//topic = (char*)os_zalloc(strlen(config.mqtt_topic_s01)+strlen(MQTT_SEPARATOR)+strlen(MQTT_TOPIC_UPDATE)+1);
-			//strcpy(topic, config.mqtt_topic_s01);
-			//strcpy(topic, MQTT_SEPARATOR);
-			//strcpy(topic, MQTT_TOPIC_UPDATE);
+			topic = (char*)os_zalloc(strlen(config.mqtt_topic_s01)+strlen(MQTT_SEPARATOR)+strlen(MQTT_TOPIC_UPDATE)+1);
+			strcpy(topic, config.mqtt_topic_s01);
+			strcat(topic, MQTT_SEPARATOR);
+			strcat(topic, MQTT_TOPIC_UPDATE);
 			//strcpy(topic, '\0');
-			topic = (char*)os_zalloc(strlen(config.mqtt_topic_s01));
-			topic = config.mqtt_topic_s01;
+			//topic = (char*)os_zalloc(strlen(config.mqtt_topic_s01));
+			//topic = config.mqtt_topic_s01;
 			break;
 		case SWITCH02_GPIO:
-			//topic = (char*)os_zalloc(strlen(config.mqtt_topic_s02)+strlen(MQTT_SEPARATOR)+strlen(MQTT_TOPIC_UPDATE)+1);
-			//strcpy(topic, config.mqtt_topic_s02);
-			//strcpy(topic, MQTT_SEPARATOR);
-			//strcpy(topic, MQTT_TOPIC_UPDATE);
+			topic = (char*)os_zalloc(strlen(config.mqtt_topic_s02)+strlen(MQTT_SEPARATOR)+strlen(MQTT_TOPIC_UPDATE)+1);
+			strcpy(topic, config.mqtt_topic_s02);
+			strcat(topic, MQTT_SEPARATOR);
+			strcat(topic, MQTT_TOPIC_UPDATE);
 			//strcpy(topic, '\0');
-			topic = (char*)os_zalloc(strlen(config.mqtt_topic_s02));
-			topic = config.mqtt_topic_s02;
+			//topic = (char*)os_zalloc(strlen(config.mqtt_topic_s02));
+			//topic = config.mqtt_topic_s02;
 			break;
 		case SWITCH03_GPIO:
-			//topic = (char*)os_zalloc(strlen(config.mqtt_topic_s03)+strlen(MQTT_SEPARATOR)+strlen(MQTT_TOPIC_UPDATE)+1);
-			//strcpy(topic, config.mqtt_topic_s03);
-			//strcpy(topic, MQTT_SEPARATOR);
-			//strcpy(topic, MQTT_TOPIC_UPDATE);
+			topic = (char*)os_zalloc(strlen(config.mqtt_topic_s03)+strlen(MQTT_SEPARATOR)+strlen(MQTT_TOPIC_UPDATE)+1);
+			strcpy(topic, config.mqtt_topic_s03);
+			strcat(topic, MQTT_SEPARATOR);
+			strcat(topic, MQTT_TOPIC_UPDATE);
 			//strcpy(topic, '\0');
-			topic = (char*)os_zalloc(strlen(config.mqtt_topic_s03));
-			topic = config.mqtt_topic_s03;
+			//topic = (char*)os_zalloc(strlen(config.mqtt_topic_s03));
+			//topic = config.mqtt_topic_s03;
 			break;
 		default:
 			INFO("Notification: No topic for switch %d\n", gpio);
@@ -195,7 +195,7 @@ notify_switch_status(int gpio, int status) {
 			return;
 	}
 
-	INFO("NOTIFICATION: Sending switch status\nTopic: %s\nPayload: %s\n",config.mqtt_topic_s01 ,payload);
+	INFO("NOTIFICATION: Sending switch status\nTopic: %s\nPayload: %s\n",topic ,payload);
 	MQTT_Publish(&mqttClient, topic, payload, strlen(payload), 0, 0);
 }
 
